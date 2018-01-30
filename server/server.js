@@ -1,19 +1,38 @@
-// server.js
-
-// set up ======================================================================
-// get all the tools we need
 import config from 'config'
 import express from 'express';
-import database from './Database'
-import bodyParser from 'body-parser'
-
+import passport from 'passport';
+import flash from 'connect-flash';
+import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import session from 'express-session';
+import database from './helpers/Database';
 
 const app = express();
 const port = process.env.PORT || 8080;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
+app.set('view engine', 'ejs'); // set up ejs for templating
+app.use(express.static('public')); // Folder for public files
 
+// required for passport
+app.use(session(config.get("session")))
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+app.use(flash()); // use connect-flash for flash messages stored in session
+
+// middleware
+// route middleware to make sure a user is logged in
+function isMember(req, res, next) {
+  // if user is authenticated in the session, carry on
+  if (req.isAuthenticated())
+    return next();
+  // if they aren't redirect them to the home page
+  res.redirect('/');
+}
+
+/*
 app.get('/products', (req,res) => {
   database.query( 'SELECT * FROM produkte' )
   .then( rows => {
@@ -72,7 +91,7 @@ app.put('/products/:id', (req,res) => {
     return res.send(rows);
   })
   .catch(err => console.log(err));
-})
+})*/
 
 
 // launch ======================================================================
