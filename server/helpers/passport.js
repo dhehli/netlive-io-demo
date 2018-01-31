@@ -19,7 +19,7 @@ import database from './Database';
 
 // used to serialize the user for the session
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+  done(null, user.user_id);
 });
 
 // used to deserialize the user
