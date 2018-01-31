@@ -12,6 +12,8 @@ import publicRoutes from './routes/public/index.js'
 
 const app = express();
 const port = process.env.PORT || 8080;
+app.use(morgan('dev'));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
