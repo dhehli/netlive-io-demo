@@ -24,7 +24,10 @@ passport.serializeUser((user, done) => {
 
 // used to deserialize the user
 passport.deserializeUser((id, done) => {
-  database.query("SELECT * FROM user WHERE user_id = ? ", [id]).then(rows => done(rows[0])).catch(err => done(err))
+  database.query("SELECT * FROM user WHERE user_id = ? ", [id]).then(rows => done(rows[0])).catch(err => {
+    console.log("err",err);
+    done(err)
+  })
 });
 
 // =========================================================================
@@ -54,17 +57,18 @@ passport.use('local-signup', new LocalStrategy({
 
       const insertQuery = "INSERT INTO user ( email, password, userstate_id, userpermission_id ) values (?,?,?,?)";
 
-      console.log(insertQuery);
-
       database.query(insertQuery, [newUserMysql.email, newUserMysql.password, newUserMysql.userstateId, newUserMysql.userpermission]).then(rows => {
         newUserMysql.id = rows.insertId;
         return done(null, newUserMysql);
       }).catch(err => {
-        console.log(err);
-        done(null, newUserMysql)
+        console.log("error", err);
+        return done(null, newUserMysql)
       });
     }
-  }).catch(err => done(err))
+  }).catch(err => {
+    console.log("wired",err);
+    return done(err)
+  })
 }));
 
 // =========================================================================
@@ -89,7 +93,10 @@ passport.use('local-login', new LocalStrategy({
 
     // all is well, return successful user
     return done(null, rows[0]);
-  }).catch(err => done(err))
+  }).catch(err => {
+    console.log(err);
+    done(err)
+  })
 }));
 
 export default passport;
