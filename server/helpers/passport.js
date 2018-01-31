@@ -24,7 +24,7 @@ passport.serializeUser(function(user, done) {
 
 // used to deserialize the user
 passport.deserializeUser(function(id, done) {
-  database.query("SELECT * FROM user WHERE id = ? ", [id])
+  database.query("SELECT * FROM user WHERE user_id = ? ", [id])
   .then(rows => done(rows[0]))
   .catch(err => done(err))
 });
@@ -50,17 +50,24 @@ passport.use('local-signup', new LocalStrategy({
           // create the user
           const newUserMysql = {
               email: email,
-              password: bcrypt.hashSync(password, null, null)  // use the generateHash function in our user model
+              password: bcrypt.hashSync(password, null, null),  // use the generateHash function in our user model
+              userstateId: 1, // TODO: should this be here or on database default value
+              userpermission: 1
           };
 
-          const insertQuery = "INSERT INTO users ( email, password ) values (?,?)";
+          const insertQuery = "INSERT INTO user ( email, password, userstate_id, userpermission_id ) values (?,?,?,?)";
 
-          database.query(insertQuery,[newUserMysql.email, newUserMysql.password])
+          console.log(insertQuery);
+
+          database.query(insertQuery,[newUserMysql.email, newUserMysql.password, newUserMysql.userstateId, newUserMysql.userpermission])
           .then(rows => {
               newUserMysql.id = rows.insertId;
               return done(null, newUserMysql);
           })
-          .catch(err => done(null, newUserMysql));
+          .catch(err => {
+            console.log(err);
+            done(null, newUserMysql)
+          });
         }
       })
       .catch(err => done(err))
