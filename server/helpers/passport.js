@@ -18,12 +18,12 @@ import database from './Database';
 // passport needs ability to serialize and unserialize users out of session
 
 // used to serialize the user for the session
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user, done) => {
   done(null, user.user_id);
 });
 
 // used to deserialize the user
-passport.deserializeUser(function(id, done) {
+passport.deserializeUser((id, done) => {
   database.query("SELECT * FROM user WHERE user_id = ? ", [id]).then(rows => done(rows[0])).catch(err => done(err))
 });
 
@@ -38,7 +38,7 @@ passport.use('local-signup', new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password',
   passReqToCallback: true // allows us to pass back the entire request to the callback
-}, function(req, email, password, done) {
+}, (req, email, password, done) => {
   database.query("SELECT * FROM user WHERE email = ?", [email]).then(rows => {
     if (rows.length) {
       return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
@@ -78,7 +78,7 @@ passport.use('local-login', new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password',
   passReqToCallback: true // allows us to pass back the entire request to the callback
-}, function(req, email, password, done) { // callback with email and password from our form
+}, (req, email, password, done) => { // callback with email and password from our form
   database.query("SELECT * FROM user WHERE email = ?", [email]).then(rows => {
     if (!rows.length) {
       return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash

@@ -8,7 +8,9 @@ import bodyParser from 'body-parser';
 import session from 'express-session';
 
 import database from './helpers/Database';
-import publicRoutes from './routes/public/index.js'
+import publicRoutes from './routes/public/index'
+import memberRoutes from './routes/member/index'
+import adminRoutes from './routes/admin/index'
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -37,6 +39,10 @@ function isMember(req, res, next) {
 }
 
 app.use(publicRoutes);
+app.use(memberRoutes);
+app.use(adminRoutes);
+
+
 
 /*
 app.get('/products', (req,res) => {
