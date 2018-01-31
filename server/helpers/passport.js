@@ -4,8 +4,8 @@
 var LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-var mysql = require('mysql');
-var bcrypt = require('bcrypt-nodejs');
+import mysql from 'mysql';
+import bcrypt from 'bcrypt-nodejs';
 import passport from 'passport';
 import database from './Database';
 
@@ -24,9 +24,7 @@ passport.serializeUser(function(user, done) {
 
 // used to deserialize the user
 passport.deserializeUser(function(id, done) {
-  database.query("SELECT * FROM user WHERE user_id = ? ", [id])
-  .then(rows => done(rows[0]))
-  .catch(err => done(err))
+  database.query("SELECT * FROM user WHERE user_id = ? ", [id]).then(rows => done(rows[0])).catch(err => done(err))
 });
 
 // =========================================================================
@@ -36,43 +34,38 @@ passport.deserializeUser(function(id, done) {
 // by default, if there was no name, it would just be called 'local'
 
 passport.use('local-signup', new LocalStrategy({
-    // by default, local strategy uses username and password, we will override with email
-    usernameField: 'email',
-    passwordField: 'password',
-    passReqToCallback: true // allows us to pass back the entire request to the callback
-  },function(req, email, password, done) {
-      database.query("SELECT * FROM user WHERE email = ?",[email])
-      .then(rows => {
-        if (rows.length) {
-            return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
-        } else {
-          // if there is no user with that email
-          // create the user
-          const newUserMysql = {
-              email: email,
-              password: bcrypt.hashSync(password, null, null),  // use the generateHash function in our user model
-              userstateId: 1, // TODO: should this be here or on database default value
-              userpermission: 1
-          };
+  // by default, local strategy uses username and password, we will override with email
+  usernameField: 'email',
+  passwordField: 'password',
+  passReqToCallback: true // allows us to pass back the entire request to the callback
+}, function(req, email, password, done) {
+  database.query("SELECT * FROM user WHERE email = ?", [email]).then(rows => {
+    if (rows.length) {
+      return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
+    } else {
+      // if there is no user with that email
+      // create the user
+      const newUserMysql = {
+        email: email,
+        password: bcrypt.hashSync(password, null, null), // use the generateHash function in our user model
+        userstateId: 1, // TODO: should this be here or on database default value
+        userpermission: 1
+      };
 
-          const insertQuery = "INSERT INTO user ( email, password, userstate_id, userpermission_id ) values (?,?,?,?)";
+      const insertQuery = "INSERT INTO user ( email, password, userstate_id, userpermission_id ) values (?,?,?,?)";
 
-          console.log(insertQuery);
+      console.log(insertQuery);
 
-          database.query(insertQuery,[newUserMysql.email, newUserMysql.password, newUserMysql.userstateId, newUserMysql.userpermission])
-          .then(rows => {
-              newUserMysql.id = rows.insertId;
-              return done(null, newUserMysql);
-          })
-          .catch(err => {
-            console.log(err);
-            done(null, newUserMysql)
-          });
-        }
-      })
-      .catch(err => done(err))
-  })
-);
+      database.query(insertQuery, [newUserMysql.email, newUserMysql.password, newUserMysql.userstateId, newUserMysql.userpermission]).then(rows => {
+        newUserMysql.id = rows.insertId;
+        return done(null, newUserMysql);
+      }).catch(err => {
+        console.log(err);
+        done(null, newUserMysql)
+      });
+    }
+  }).catch(err => done(err))
+}));
 
 // =========================================================================
 // LOCAL LOGIN =============================================================
@@ -86,8 +79,7 @@ passport.use('local-login', new LocalStrategy({
   passwordField: 'password',
   passReqToCallback: true // allows us to pass back the entire request to the callback
 }, function(req, email, password, done) { // callback with email and password from our form
-  database.query("SELECT * FROM user WHERE email = ?", [email])
-  .then(rows => {
+  database.query("SELECT * FROM user WHERE email = ?", [email]).then(rows => {
     if (!rows.length) {
       return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
     }
@@ -97,8 +89,7 @@ passport.use('local-login', new LocalStrategy({
 
     // all is well, return successful user
     return done(null, rows[0]);
-  })
-  .catch(err => done(err))
+  }).catch(err => done(err))
 }));
 
 export default passport;
