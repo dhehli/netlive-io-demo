@@ -6,7 +6,9 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import session from 'express-session';
+
 import database from './helpers/Database';
+import publicRoutes from './routes/public/index.js'
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -31,6 +33,8 @@ function isMember(req, res, next) {
   // if they aren't redirect them to the home page
   res.redirect('/');
 }
+
+app.use(publicRoutes);
 
 /*
 app.get('/products', (req,res) => {
