@@ -63,15 +63,24 @@ passport.use('local-signup', new LocalStrategy({
       // if there is no user with that email
       // create the user
       const newUserMysql = {
+        salutation_id: trimmedSalutation,
+        firstname: trimmedFirstname,
+        lastname: trimmedLastname,
         email: email,
         password: bcrypt.hashSync(password, null, null), // use the generateHash function in our user model
+        last_login: new Date().toISOString().slice(0, 19).replace('T', ' '),
+        userpermission_id: 1
       };
 
-      const insertQuery = "INSERT INTO user ( email, password, last_login ) values (?,?)";
+      const insertQuery = "INSERT INTO user ( salutation_id, firstname, lastname, email, password, last_login ) values (?,?,?,?,?,?)";
 
       database.query(insertQuery, [
+        newUserMysql.salutation_id,
+        newUserMysql.firstname,
+        newUserMysql.lastname,
         newUserMysql.email,
         newUserMysql.password,
+        newUserMysql.last_login,
       ]).then(rows => {
         newUserMysql.user_id = rows.insertId;
         return done(null, newUserMysql);

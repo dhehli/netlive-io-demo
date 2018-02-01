@@ -47,7 +47,6 @@ router.post('/signup', passport.authenticate('local-signup', {
   failureRedirect: '/signup', // redirect back to the signup page if there is an error
   failureFlash: true // allow flash messages
 }), (req, res) => {
-  return req.flash('signupMessage', 'Flash is back!')
   const { userpermission_id } = req.user;
   redirectUserPermission(userpermission_id, res);
 });
