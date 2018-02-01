@@ -105,6 +105,10 @@ passport.use('local-login', new LocalStrategy({
     if (!rows.length) {
       return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
     }
+    // If user has userstate to blocked
+    if(rows[0].userstate_id === 2)
+      return done(null, false, req.flash('loginMessage', 'You have no acces contact the website administrator')); // req.flash is the way to set flashdata using connect-flash
+
     // if the user is found but the password is wrong
     if (!bcrypt.compareSync(password, rows[0].password))
       return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
