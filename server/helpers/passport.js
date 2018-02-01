@@ -37,6 +37,25 @@ passport.use('local-signup', new LocalStrategy({
   passwordField: 'password',
   passReqToCallback: true // allows us to pass back the entire request to the callback
 }, (req, email, password, done) => {
+
+  const { salutation, firstname, lastname } = req.body;
+
+  const trimmedSalutation = salutation && salutation.trim()
+  const trimmedFirstname = firstname && firstname.trim()
+  const trimmedLastname = lastname && lastname.trim()
+
+  if(!trimmedSalutation || trimmedSalutation.length === 0){
+    return done(null, false, req.flash('signupMessage', 'No Salutation'));
+  }
+
+  if(!trimmedFirstname || trimmedFirstname.length === 0){
+    return done(null, false, req.flash('signupMessage', 'No Firstname'));
+  }
+
+  if(!trimmedLastname || trimmedLastname.length === 0){
+    return done(null, false, req.flash('signupMessage', 'No Lastname'));
+  }
+
   database.query("SELECT * FROM user WHERE email = ?", [email]).then(rows => {
     if (rows.length) {
       return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
@@ -46,18 +65,13 @@ passport.use('local-signup', new LocalStrategy({
       const newUserMysql = {
         email: email,
         password: bcrypt.hashSync(password, null, null), // use the generateHash function in our user model
-        userstate_id: 1, // TODO: should this be here or on database default value
-        userpermission_id: 1,
-        last_login: new Date()
       };
 
-      const insertQuery = "INSERT INTO user ( email, password, userstate_id, userpermission_id ) values (?,?,?,?)";
+      const insertQuery = "INSERT INTO user ( email, password, last_login ) values (?,?)";
 
       database.query(insertQuery, [
         newUserMysql.email,
         newUserMysql.password,
-        newUserMysql.userstate_id,
-        newUserMysql.userpermission_id
       ]).then(rows => {
         newUserMysql.user_id = rows.insertId;
         return done(null, newUserMysql);
