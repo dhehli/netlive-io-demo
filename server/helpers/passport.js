@@ -1,12 +1,10 @@
 // config/passport.js
-
+import passport from 'passport';
 // load all the things we need
 var LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-import mysql from 'mysql';
 import bcrypt from 'bcrypt-nodejs';
-import passport from 'passport';
 import database from './Database';
 
 // expose this function to our app using module.exports
@@ -18,16 +16,13 @@ import database from './Database';
 // passport needs ability to serialize and unserialize users out of session
 
 // used to serialize the user for the session
-passport.serializeUser((user, done) => {
-  done(null, user.user_id);
-});
+passport.serializeUser((user, done) => done(null, user.user_id));
 
 // used to deserialize the user
 passport.deserializeUser((id, done) => {
-  database.query("SELECT * FROM user WHERE user_id = ? ", [id]).then(rows => done(rows[0])).catch(err => {
-    console.log("err",err);
-    done(err)
-  })
+  database.query("SELECT * FROM user WHERE user_id = ? ", [id])
+  .then(rows => done(null,rows[0]))
+  .catch(err => done(err,null))
 });
 
 // =========================================================================
@@ -58,17 +53,11 @@ passport.use('local-signup', new LocalStrategy({
       const insertQuery = "INSERT INTO user ( email, password, userstate_id, userpermission_id ) values (?,?,?,?)";
 
       database.query(insertQuery, [newUserMysql.email, newUserMysql.password, newUserMysql.userstateId, newUserMysql.userpermission]).then(rows => {
-        newUserMysql.id = rows.insertId;
+        newUserMysql.user_id = rows.insertId;
         return done(null, newUserMysql);
-      }).catch(err => {
-        console.log("error", err);
-        return done(null, newUserMysql)
-      });
+      }).catch(err => done(null, newUserMysql));
     }
-  }).catch(err => {
-    console.log("wired",err);
-    return done(err)
-  })
+  }).catch(err => done(err))
 }));
 
 // =========================================================================
@@ -93,10 +82,7 @@ passport.use('local-login', new LocalStrategy({
 
     // all is well, return successful user
     return done(null, rows[0]);
-  }).catch(err => {
-    console.log(err);
-    done(err)
-  })
+  }).catch(err => done(err))
 }));
 
 export default passport;

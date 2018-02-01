@@ -5,8 +5,13 @@ const router = express.Router();
 
 const folder = './public/'
 
+
 router.get('/', (req, res) => {
   res.render(`${folder}/index`);
+});
+
+router.get('/profile', (req, res) => {
+  res.render(`${folder}/profile.ejs`);
 });
 
 router.get('/login', (req, res) => {
@@ -16,20 +21,10 @@ router.get('/login', (req, res) => {
 
 // process the login form
 router.post('/login', passport.authenticate('local-login', {
-  failureRedirect : '/login', // redirect back to the signup page if there is an error,
-  failureFlash : true // allow flash messages
-}), (req, res) => {
-  const { userpermission_id } = req.user;
-
-  if(userpermission_id === 1){
-    console.log("redirect member");
-    res.redirect('/member');
-  }else if (userpermission_id === 2 || userpermission_id === 3) {
-    res.redirect('/admin');
-  }else {
-    console.error("no recocgnized user permission")
-  }
-});
+  successRedirect: '/profile', // redirect to the secure profile section
+  failureRedirect: '/login', // redirect back to the signup page if there is an error
+  failureFlash: true // allow flash messages
+}));
 
 router.get('/signup', (req, res) => {
   // render the page and pass in any flash data if it exists
