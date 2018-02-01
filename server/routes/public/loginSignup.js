@@ -5,6 +5,15 @@ const router = express.Router();
 
 const folder = './public/'
 
+function redirectUserPermission(userPermissionId, res){
+  if(userPermissionId === 1){
+    return res.redirect('/member');
+  }else if (userPermissionId === 2 || userPermissionId === 3) {
+    return res.redirect('/admin');
+  }else {
+    throw "no recocgnized user permission"
+  }
+}
 
 router.get('/', (req, res) => {
   res.render(`${folder}/index`);
@@ -21,10 +30,13 @@ router.get('/login', (req, res) => {
 
 // process the login form
 router.post('/login', passport.authenticate('local-login', {
-  successRedirect: '/profile', // redirect to the secure profile section
-  failureRedirect: '/login', // redirect back to the signup page if there is an error
-  failureFlash: true // allow flash messages
-}));
+  failureRedirect : '/login', // redirect back to the signup page if there is an error,
+  failureFlash : true // allow flash messages
+}), (req, res) => {
+  console.log(req.user);
+  const { userpermission_id } = req.user;
+  redirectUserPermission(userpermission_id, res);
+});
 
 router.get('/signup', (req, res) => {
   // render the page and pass in any flash data if it exists
@@ -33,10 +45,13 @@ router.get('/signup', (req, res) => {
 
 // process the signup form
 router.post('/signup', passport.authenticate('local-signup', {
-  successRedirect: '/profile', // redirect to the secure profile section
   failureRedirect: '/signup', // redirect back to the signup page if there is an error
   failureFlash: true // allow flash messages
-}));
+}), (req, res) => {
+  console.log(req.user);
+  const { userpermission_id } = req.user;
+  redirectUserPermission(userpermission_id, res);
+});
 
 router.get('/logout', (req, res) => {
   req.logout();

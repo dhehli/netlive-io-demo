@@ -30,8 +30,8 @@ app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 app.use(publicRoutes);
-/*app.use('/member', memberRoutes);
-app.use('/admin', adminRoutes);*/
+app.use('/member', memberRoutes);
+app.use('/admin', adminRoutes);
 
 // launch ======================================================================
 app.listen(port);
