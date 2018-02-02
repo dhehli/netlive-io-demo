@@ -7,6 +7,16 @@ var LocalStrategy = require('passport-local').Strategy;
 import bcrypt from 'bcrypt-nodejs';
 import database from './Database';
 
+//Function to update last_login
+
+function updateLastLogin(userId){
+  const currentDate = new Date().toISOString().slice(0, 19).replace('T', ' ')
+
+  database.query('UPDATE user SET last_login = ? WHERE user_id = ?', [currentDate, userId])
+  .then(rows => true)
+  .catch(err => throw err)
+}
+
 // expose this function to our app using module.exports
 
 // =========================================================================
@@ -101,7 +111,8 @@ passport.use('local-login', new LocalStrategy({
   passwordField: 'password',
   passReqToCallback: true // allows us to pass back the entire request to the callback
 }, (req, email, password, done) => { // callback with email and password from our form
-  database.query("SELECT * FROM user WHERE email = ?", [email]).then(rows => {
+  database.query("SELECT * FROM user WHERE email = ?", [email])
+  .then(rows => {
     if (!rows.length) {
       return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
     }
@@ -113,9 +124,13 @@ passport.use('local-login', new LocalStrategy({
     if (!bcrypt.compareSync(password, rows[0].password))
       return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
 
+    // update lastlogin
+    updateLastLogin(rows[0].user_id)
+
     // all is well, return successful user
     return done(null, rows[0]);
-  }).catch(err => done(err))
+  })
+  .catch(err => done(err))
 }));
 
 export default passport;
