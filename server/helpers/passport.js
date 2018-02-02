@@ -7,16 +7,6 @@ var LocalStrategy = require('passport-local').Strategy;
 import bcrypt from 'bcrypt-nodejs';
 import database from './Database';
 
-//Function to update last_login
-
-function updateLastLogin(userId){
-  const currentDate = new Date().toISOString().slice(0, 19).replace('T', ' ')
-
-  database.query('UPDATE user SET last_login = ? WHERE user_id = ?', [currentDate, userId])
-  .then(rows => true)
-  .catch(err => throw err)
-}
-
 // expose this function to our app using module.exports
 
 // =========================================================================
@@ -30,10 +20,19 @@ passport.serializeUser((user, done) => done(null, user.user_id));
 
 // used to deserialize the user
 passport.deserializeUser((id, done) => {
-  database.query("SELECT * FROM user WHERE user_id = ? ", [id])
+  database.query("SELECT * FROM v_user WHERE user_id = ? ", [id])
   .then(rows => done(null,rows[0]))
   .catch(err => done(err,null))
 });
+
+//Function to update last_login
+function updateLastLogin(userId){
+  const currentDate = new Date().toISOString().slice(0, 19).replace('T', ' ')
+
+  database.query('UPDATE user SET last_login = ? WHERE user_id = ?', [currentDate, userId])
+  .then(rows => true)
+  .catch(err => {throw err})
+}
 
 // =========================================================================
 // LOCAL SIGNUP ============================================================
@@ -66,7 +65,7 @@ passport.use('local-signup', new LocalStrategy({
     return done(null, false, req.flash('signupMessage', 'No Lastname'));
   }
 
-  database.query("SELECT * FROM user WHERE email = ?", [email]).then(rows => {
+  database.query("SELECT * FROM v_user WHERE email = ?", [email]).then(rows => {
     if (rows.length) {
       return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
     } else {
@@ -111,11 +110,11 @@ passport.use('local-login', new LocalStrategy({
   passwordField: 'password',
   passReqToCallback: true // allows us to pass back the entire request to the callback
 }, (req, email, password, done) => { // callback with email and password from our form
-  database.query("SELECT * FROM user WHERE email = ?", [email])
+  database.query("SELECT * FROM v_user WHERE email = ?", [email])
   .then(rows => {
-    if (!rows.length) {
+    if (!rows.length)
       return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
-    }
+
     // If user has userstate to blocked
     if(rows[0].userstate_id === 2)
       return done(null, false, req.flash('loginMessage', 'You have no acces contact the website administrator')); // req.flash is the way to set flashdata using connect-flash

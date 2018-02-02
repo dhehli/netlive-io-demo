@@ -29,9 +29,30 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
+// middleware
+// route middleware to make sure a user is logged in
+function isMember(req, res, next) {
+  // if user is authenticated in the session, carry on
+  if (req.isAuthenticated())
+    return next();
+  // if they aren't redirect them to the home page
+  res.redirect('/');
+}
+
+// middleware
+// route middleware to make sure a user has admin right
+function isAdmin(req, res, next) {
+  // if user is authenticated in the session, carry on
+  if (req.isAuthenticated() && req.user.userpermission_id === 2)
+    return next();
+  // if they aren't redirect them to the home page
+  res.redirect('/');
+}
+
+
 app.use(publicRoutes);
-app.use('/member', memberRoutes);
-app.use('/admin', adminRoutes);
+app.use('/member', isMember, memberRoutes);
+app.use('/admin', isAdmin, adminRoutes);
 
 // launch ======================================================================
 app.listen(port);
