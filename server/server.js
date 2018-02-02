@@ -52,7 +52,7 @@ function isAdmin(req, res, next) {
 
 app.use(publicRoutes);
 app.use('/member', isMember, memberRoutes);
-app.use('/admin', isAdmin, adminRoutes);
+app.use('/admin',  adminRoutes);// TODO: add isAdmin Middleware
 
 // launch ======================================================================
 app.listen(port);
