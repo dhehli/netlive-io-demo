@@ -45,7 +45,17 @@
 
             <form action="/admin/profile" method="post">
               <div class="box-body">
+                <% if (messages && messages.length) { %>
+                  <div class="alert alert-danger">
+                    <%= messages %>
+                  </div>
+                <% } %>
 
+                <% if (messagesSuccess && messagesSuccess.length) { %>
+                  <div class="alert alert-success">
+                    <%= messagesSuccess %>
+                  </div>
+                <% } %>
 
                 <div class="form-group">
                   <label for="salutation">Salutation</label>
@@ -78,21 +88,26 @@
             </div>
             <!-- /.box-header -->
             <!-- form start -->
-            <form role="form">
+            <form action="/admin/changepassword" method="post">
               <div class="box-body">
+                <% if (messagesPassword && messagesPassword.length) { %>
+                  <div class="alert alert-danger">
+                    <%= messagesPassword %>
+                  </div>
+                <% } %>
                 <div class="form-group">
-                  <label for="exampleInputEmail1">Email address</label>
-                  <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                  <label for="password">Password</label>
+                  <input type="password" class="form-control" id="password" placeholder="Password" name="password" required>
                 </div>
                 <div class="form-group">
-                  <label for="exampleInputPassword1">Password</label>
-                  <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                  <label for="exampleconfirm-passwordInputPassword1">Confirm password</label>
+                  <input type="password" class="form-control" id="confirm-password" placeholder="Password" name="confirm-password" required>
                 </div>
               </div>
               <!-- /.box-body -->
 
               <div class="box-footer">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary">Change</button>
               </div>
             </form>
           </div>
@@ -103,20 +118,20 @@
             <div class="box-body box-profile">
               <img class="profile-user-img img-responsive img-circle" src="../../dist/img/user4-128x128.jpg" alt="User profile picture">
 
-              <h3 class="profile-username text-center">Nina Mcintire</h3>
+              <h3 class="profile-username text-center"><%= user.firstname %> <%= user.lastname %></h3>
 
               <p class="text-muted text-center">Software Engineer</p>
 
               <ul class="list-group list-group-unbordered">
                 <li class="list-group-item">
-                  <b>Followers</b> <a class="pull-right">1,322</a>
+                  <b>E-Mail</b> <a class="pull-right"><%= user.email %></a>
                 </li>
                 <li class="list-group-item">
-                  <b>Following</b> <a class="pull-right">543</a>
+                  <b>Last login</b> <a class="pull-right"><%= new Date(user.last_login).toLocaleDateString("de-DE") %></a>
                 </li>
-                <li class="list-group-item">
+                <!--<li class="list-group-item">
                   <b>Friends</b> <a class="pull-right">13,287</a>
-                </li>
+                </li>-->
               </ul>
             </div>
             <!-- /.box-body -->
