@@ -19,10 +19,6 @@ router.get('/', (req, res) => {
   res.render(`${folder}/index`);
 });
 
-router.get('/profile', (req, res) => {
-  res.render(`${folder}/profile.ejs`);
-});
-
 router.get('/login', (req, res) => {
   // render the page and pass in any flash data if it exists
   res.render(`${folder}/login`, {message: req.flash('loginMessage')});

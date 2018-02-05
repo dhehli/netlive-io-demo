@@ -1,14 +1,17 @@
 import express from 'express';
 import database from '../../helpers/Database';
+import bcrypt from 'bcrypt-nodejs';
 
 const router = express.Router();
 const folder = './admin/'
 
 router.get('/profile', (req, res) => {
-  res.render(`${folder}/profileedit`, {
+  return res.render(`${folder}/profileedit`, {
     user : req.user,
-    messages: req.flash('error'),
-    messagesSuccess: req.flash('messageSuccess')
+    messages: req.flash('messages'),
+    messagesSuccess: req.flash('messagesSuccess'),
+    messagesPassword: req.flash('messagesPassword'),
+    messagesSuccessPassword: req.flash('messagesSuccessPassword')
   });
 })
 
@@ -23,30 +26,26 @@ router.post('/profile', (req, res) => {
 
   if(!trimmedSalutation || trimmedSalutation.length === 0){
     hasError = true;
-    req.flash('error', 'No Salutation');
+    req.flash('messages', 'No Salutation');
   }
 
   if(!trimmedFirstname || trimmedFirstname.length === 0){
     hasError = true;
-    req.flash('error', 'No Firstname');
+    req.flash('messages', 'No Firstname');
   }
 
   if(!trimmedLastname || trimmedLastname.length === 0){
     hasError = true;
-    req.flash('error', 'No Lastname');
+    req.flash('messages', 'No Lastname');
   }
 
   if(!trimmedEmail || trimmedEmail.length === 0){
     hasError = true;
-    req.flash('error', 'No email');
+    req.flash('messages', 'No email');
   }
 
   if (hasError) {
-    return res.redirect(`${folder}/profileedit`, {
-      user : req.user,
-      messages: req.flash('error'),
-      messagesSuccess: req.flash('messageSuccess')
-    });
+    return res.redirect(`./profile`);
   }
 
   const user = {
@@ -65,11 +64,9 @@ router.post('/profile', (req, res) => {
   ])
   .then(rows => {
     req.user = user;
-    return res.render(`${folder}/profileedit`, {
-      user : req.user,
-      messages: req.flash('error'),
-      messagesSuccess: req.flash('messageSuccess')
-    });
+    req.flash('messagesSuccess','User updated')
+
+    return res.redirect(`./profile`);
   })
   .catch(err => {
     throw err
@@ -77,12 +74,12 @@ router.post('/profile', (req, res) => {
 })
 
 router.post('/changepassword', (req, res) => {
-  const { password, confirmPasword } = req.body;
+  const { password, confirmPassword } = req.body;
 
   let hasError = false;
 
-  const trimmedPassword = trimmedPassword && trimmedPassword.trim()
-  const trimmedConfirmPassword = trimmedConfirmPassword && trimmedConfirmPassword.trim()
+  const trimmedPassword = password && password.trim()
+  const trimmedConfirmPassword = confirmPassword && confirmPassword.trim()
 
   if(!trimmedPassword || trimmedPassword.length === 0){
     hasError = true;
@@ -94,13 +91,27 @@ router.post('/changepassword', (req, res) => {
     req.flash('messagesPassword', 'No confirm password');
   }
 
-  if (hasError) {
-    return res.redirect(`${folder}/profileedit`, {
-      user : req.user,
-      messages: req.flash('error'),
-      messagesSuccess: req.flash('messageSuccess')
-    });
+  if (trimmedPassword !== trimmedConfirmPassword) {
+    hasError = true;
+    req.flash('messagesPassword', 'Passwords do not match');
   }
+
+  if (hasError) {
+    return res.redirect(`./profile`);
+  }
+
+  database.query("UPDATE user SET password = ? WHERE user_id = ? ", [
+    bcrypt.hashSync(trimmedPassword, null, null),
+    req.user.user_id
+  ])
+  .then(rows => {
+    req.flash('messagesSuccessPassword','Password updated')
+
+    return res.redirect(`./profile`);
+  })
+  .catch(err => {
+    throw err
+  })
 })
 
 export default router;
