@@ -1,7 +1,11 @@
+import config from 'config';
 import express from 'express';
 import passport from 'passport';
+import crypto from 'crypto'
+import database from '../../helpers/Database'
 import passportConf from '../../helpers/passport'
 const router = express.Router();
+const mailgun = require('mailgun-js')(config.get('mailgun'));
 
 const folder = './public/'
 
@@ -46,6 +50,81 @@ router.post('/signup', passport.authenticate('local-signup', {
   const { userpermission_id } = req.user;
   redirectUserPermission(userpermission_id, res);
 });
+
+router.get('/forgotpassword', (req, res) => {
+  // render the page and pass in any flash data if it exists
+  res.render(`${folder}/forgotpassword`, {
+    message: req.flash('forgotPasswordMessage'),
+    messageSuccess: req.flash('forgotPasswordSuccess'),
+  });
+});
+
+router.post('/forgotpassword', (req, res) => {
+  const { email } = req.body;
+  let hasError = false;
+
+  const trimmedEmail = email && email.trim()
+
+  if(!trimmedEmail || trimmedEmail.length === 0){
+    hasError = true;
+    req.flash('forgotPasswordMessage', 'No email');
+  }
+
+  if (hasError) {
+    return res.redirect(`./forgotpassword`);
+  }
+
+  const hash = crypto.randomBytes(20).toString('hex');
+
+  database.query("SELECT * FROM v_user WHERE email = ?", [email])
+  .then(rows => {
+    if (!rows.length){
+      req.flash('forgotPasswordMessage', 'User not found');
+      return res.redirect('./forgotpassword')
+    }
+    return rows[0];
+  })
+  .then(row => {
+    return row && database.query("INSERT INTO user_forgotpassword (email, hash) VALUES(?,?)", [
+      email,
+      hash
+    ])
+  })
+  .then(insertedRow => {
+    if(insertedRow){
+      const data = {
+        from: `${config.get('defaultMail')}`,
+        to: `${email}`,
+        subject: 'Forgot password link ',
+        html: `
+          <p>
+            You used the forgot password function on netlive-io.<br>
+            Pleae use the following link to reset your password
+          <p>
+          <p>
+            <a href="http://localhost:8080/resetpassword/${hash}">Reset password</a>
+          </p>
+        `
+      }
+      return mailgun.messages().send(data)
+    }
+  })
+  .then(success => {
+    if(success){
+      req.flash('forgotPasswordSuccess', 'Mail sent. Please check your E-Mail.');
+    }    
+    return res.redirect(`./forgotpassword`);
+  })
+  .catch(err => {
+    throw err;
+  })
+});
+
+router.get('/resetpassword', (req, res) => {
+
+})
+
+
 
 router.get('/logout', (req, res) => {
   req.logout();

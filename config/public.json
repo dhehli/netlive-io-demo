@@ -9,5 +9,10 @@
     "secret": "",
     "resave": ,
     "saveUninitialized":
-  }
+  },
+  "mailgun":{
+    "apiKey": "",
+    "domain": ""
+  },
+  "defaultMail": ""
 }
