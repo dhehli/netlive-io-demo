@@ -112,7 +112,7 @@ router.post('/forgotpassword', (req, res) => {
   .then(success => {
     if(success){
       req.flash('forgotPasswordSuccess', 'Mail sent. Please check your E-Mail.');
-    }    
+    }
     return res.redirect(`./forgotpassword`);
   })
   .catch(err => {
@@ -120,10 +120,93 @@ router.post('/forgotpassword', (req, res) => {
   })
 });
 
-router.get('/resetpassword', (req, res) => {
+router.get('/resetpassword/:hash', (req, res) => {
+  const hash = req.params.hash;
+  let showForm = false;
 
+  database.query(`
+    SELECT TIMESTAMPDIFF(MINUTE, created, now()) as minuteDiff, forgotpassword_id, created, isActivated
+    FROM v_user_forgotpassword
+    WHERE
+    hash = ?`, [hash])
+  .then(rows => {
+    if (!rows.length){
+      req.flash('resetPasswordMessage', 'Invalid Link');
+      return
+      
+    }else {
+      const { minuteDiff, isActivated } = rows[0];
+
+      if(isActivated){
+        req.flash('resetPasswordMessage', 'Link already used');
+        return
+      }
+
+      if(minuteDiff > 60){
+        req.flash('resetPasswordMessage', 'Link expired');
+        return
+      }
+      showForm = true;
+      return rows[0]
+    }
+  })
+  .then(row => {
+    if(row){
+      req.flash('resetPasswordSuccess', 'Password successfully reseted');
+    }
+  })
+  .catch(err => {
+    throw err
+  })
+
+  res.render(`${folder}/resetpassword`, {
+    showForm: showForm,
+    message: req.flash('resetPasswordMessage'),
+    messageSuccess: req.flash('resetPasswordSuccess'),
+  });
 })
 
+router.post('/resetpassword/:hash', (req, res) => {
+  const hash = req.params.hash;
+
+  const { password, confirmPassword } = req.body;
+  let hasError = false;
+
+  const trimmedPassword = password && password.trim()
+  const trimmedConfirmPassword = confirmPassword && confirmPassword.trim()
+
+  if(!trimmedPassword || trimmedPassword.length === 0){
+    hasError = true;
+    req.flash('resetPasswordMessage', 'No password');
+  }
+
+  if(!trimmedConfirmPassword || trimmedConfirmPassword.length === 0){
+    hasError = true;
+    req.flash('resetPasswordMessage', 'No confirm password');
+  }
+
+  if (trimmedPassword !== trimmedConfirmPassword) {
+    hasError = true;
+    req.flash('resetPasswordMessage', 'Passwords do not match');
+  }
+
+  if (hasError) {
+    return res.redirect(`./resetpassword`);
+  }
+ /*
+  database.query("SELECT user SET password = ? WHERE user_id = ? ", [
+    bcrypt.hashSync(trimmedPassword, null, null),
+    req.user.user_id
+  ])
+  .then(rows => {
+    req.flash('messagesSuccessPassword','Password updated')
+
+    return res.redirect(`./profile`);
+  })
+  .catch(err => {
+    throw err
+  })*/
+})
 
 
 router.get('/logout', (req, res) => {
