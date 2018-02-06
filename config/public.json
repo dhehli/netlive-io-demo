@@ -14,5 +14,6 @@
     "apiKey": "",
     "domain": ""
   },
-  "defaultMail": ""
+  "defaultMail": "",
+  "domain": ""
 }

@@ -55,7 +55,7 @@ router.post('/forgotpassword', (req, res) => {
             Pleae use the following link to reset your password
           <p>
           <p>
-            <a href="http://localhost:8080/resetpassword/${hash}">Reset password</a>
+            <a href="${config.get('domain')}/resetpassword/${hash}">Reset password</a>
           </p>
         `
       }
