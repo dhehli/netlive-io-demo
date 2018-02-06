@@ -43,7 +43,17 @@ function isMember(req, res, next) {
 // route middleware to make sure a user has admin right
 function isAdmin(req, res, next) {
   // if user is authenticated in the session, carry on
-  if (req.isAuthenticated() && req.user.userpermission_id === 2)
+  // TODO: numbers hard to understand move to enum
+  if (req.isAuthenticated() && (req.user.userpermission_id === 2 || req.user.userpermission_id === 3))
+    return next();
+  // if they aren't redirect them to the home page
+  res.redirect('/');
+}
+
+function isSuperAdmin(req, res, next){
+  // if user is authenticated in the session, carry on
+  // TODO: numbers hard to understand move to enum
+  if (req.isAuthenticated() && req.user.userpermission_id === 3)
     return next();
   // if they aren't redirect them to the home page
   res.redirect('/');

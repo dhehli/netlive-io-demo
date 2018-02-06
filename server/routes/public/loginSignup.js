@@ -9,7 +9,7 @@ const mailgun = require('mailgun-js')(config.get('mailgun'));
 const folder = './public/'
 
 function redirectUserPermission(userPermissionId, res){
-  if(userPermissionId === 1){
+  if(userPermissionId === 1){ // TODO: this numbers are hard to understand move to enum
     return res.redirect('/member');
   }else if (userPermissionId === 2 || userPermissionId === 3) {
     return res.redirect('/admin');
