@@ -52,7 +52,12 @@ function isAdmin(req, res, next) {
 
 app.use(publicRoutes);
 app.use('/member', isMember, memberRoutes);
-app.use('/admin',  adminRoutes);// TODO: add isAdmin Middleware
+app.use('/admin',  isAdmin, adminRoutes);
+
+app.get('*', (req, res) => {
+  console.log("not found");
+  res.render(`./shared/404.ejs`);
+});
 
 // launch ======================================================================
 app.listen(port);
