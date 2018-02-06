@@ -13,7 +13,7 @@ import memberRoutes from './routes/member/index'
 import adminRoutes from './routes/admin/index'
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 app.use(morgan('dev'));
 app.use(cookieParser()); // read cookies (needed for auth
 app.use(bodyParser.json());
