@@ -9,7 +9,7 @@ import passportConf from '../../helpers/passport'
 const router = express.Router();
 const mailgun = require('mailgun-js')(config.get('mailgun'));
 
-const folder = './public/'
+const folder = './public'
 
 
 router.post('/forgotpassword', (req, res) => {

@@ -6,7 +6,7 @@ import passportConf from '../../helpers/passport'
 const router = express.Router();
 const mailgun = require('mailgun-js')(config.get('mailgun'));
 
-const folder = './public/'
+const folder = './public'
 
 function redirectUserPermission(userPermissionId, res){
   if(userPermissionId === 1){ // TODO: this numbers are hard to understand move to enum

@@ -3,7 +3,7 @@ import database from '../../helpers/Database';
 import bcrypt from 'bcrypt-nodejs';
 
 const router = express.Router();
-const folder = './admin/'
+const folder = './admin'
 
 router.get('/profile', (req, res) => {
   return res.render(`${folder}/profileedit`, {
