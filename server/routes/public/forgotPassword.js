@@ -24,7 +24,7 @@ router.post('/forgotpassword', (req, res) => {
   }
 
   if (hasError) {
-    return res.redirect(`./forgotpassword`);
+    return res.redirect(`/forgotpassword`);
   }
 
   const hash = crypto.randomBytes(20).toString('hex');
