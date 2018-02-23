@@ -68,9 +68,7 @@ router.post('/forgotpassword', (req, res) => {
     }
     return res.redirect(`/forgotpassword`);
   })
-  .catch(err => {
-    throw err;
-  })
+  .catch(err => console.error(err))
 });
 
 function isResetPasswordHashValid(hash, req){
@@ -121,9 +119,7 @@ router.get('/resetpassword/:hash', (req, res) => {
       messageSuccess: req.flash('resetPasswordSuccess'),
     });
   })
-  .catch(err => {
-    throw err
-  })
+  .catch(err => console.error(err))
 })
 
 router.post('/resetpassword/:hash', (req, res) => {
@@ -178,9 +174,7 @@ router.post('/resetpassword/:hash', (req, res) => {
   .then(() => {
     return res.redirect(`/resetpasswordfinish`);
   })
-  .catch(err => {
-    throw err
-  })
+  .catch(err => console.error(err))
 })
 
 router.get('/resetpasswordfinish', (req, res) => {

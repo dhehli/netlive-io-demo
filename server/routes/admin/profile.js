@@ -68,9 +68,7 @@ router.post('/profile', (req, res) => {
 
     return res.redirect(`./profile`);
   })
-  .catch(err => {
-    throw err
-  })
+  .catch(err => console.error(err))
 })
 
 router.post('/changepassword', (req, res) => {
@@ -109,9 +107,7 @@ router.post('/changepassword', (req, res) => {
 
     return res.redirect(`./profile`);
   })
-  .catch(err => {
-    throw err
-  })
+  .catch(err => console.error(err))
 })
 
 export default router;

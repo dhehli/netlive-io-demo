@@ -6,6 +6,10 @@
   "repository": "",
   "scripts": {
     "start": "nodemon index",
+    "start-server": "node ./build/server",
+    "clean": "rm -rf build && mkdir build",
+    "build-server": "npx babel server --out-dir build --copy-files",
+    "build": "npm run clean && npm run build-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -18,6 +22,7 @@
     "cookie-parser": "^1.4.3",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
+    "express-recaptcha": "^3.0.1",
     "express-session": "^1.15.6",
     "mailgun-js": "^0.14.2",
     "method-override": "^2.3.10",
@@ -27,6 +32,7 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0"
   }
