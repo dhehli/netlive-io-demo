@@ -31,7 +31,7 @@ function updateLastLogin(userId){
 
   database.query('UPDATE user SET last_login = ? WHERE user_id = ?', [currentDate, userId])
   .then(rows => true)
-  .catch(err => {throw err})
+  .catch(err => console.error(err))
 }
 
 // =========================================================================
